@@ -199,6 +199,7 @@ class XTerm extends blessed.Box {
                 this.style.focus.border.fg = this.borderScrolling
                 this.focus()
                 this.screen.render()
+                this.emit("scrolling-start")
             }
             else if (this.scrolling) {
                 if (   key.full === this.options.controlKey
@@ -208,6 +209,7 @@ class XTerm extends blessed.Box {
                     this.focus()
                     this.screen.render()
                     this.scrolling = false
+                    this.emit("scrolling-end")
                     skipDataOnce = true
                 }
                 else if (key.full === "up")       this.scroll(-1)
@@ -424,25 +426,31 @@ class XTerm extends blessed.Box {
         return this.scrollTo(offset)
     }
     scrollTo (offset) {
-        if (!this.scrolling)
+        if (!this.scrolling) {
             this.scrolling = true
+            this.emit("scrolling-start")
+        }
         this.term.scrollDisp(offset - this.term.ydisp)
         this.screen.render()
-        return this.emit("scroll")
+        this.emit("scroll")
     }
     scroll (offset) {
-        if (!this.scrolling)
+        if (!this.scrolling) {
             this.scrolling = true
+            this.emit("scrolling-start")
+        }
         this.term.scrollDisp(offset)
         this.screen.render()
-        return this.emit("scroll")
+        this.emit("scroll")
     }
     resetScroll () {
         this.term.scrollToBottom()
-        if (this.scrolling)
-            this.scrolling = false
         this.screen.render()
-        return this.emit("scroll")
+        this.emit("scroll")
+        if (this.scrolling) {
+            this.scrolling = false
+            this.emit("scrolling-end")
+        }
     }
 
     /*  kill widget  */
