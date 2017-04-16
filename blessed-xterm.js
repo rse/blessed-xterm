@@ -194,22 +194,12 @@ class XTerm extends blessed.Box {
 
             /*  handle scrolling keys  */
             if (   !this.scrolling
-                && key.full === this.options.controlKey) {
-                this.scrolling = true
-                this.style.focus.border.fg = this.borderScrolling
-                this.focus()
-                this.screen.render()
-                this.emit("scrolling-start")
-            }
+                && key.full === this.options.controlKey)
+                this._scrollingStart()
             else if (this.scrolling) {
                 if (   key.full === this.options.controlKey
                     || key.full.match(/^(?:escape|return|space)$/)) {
-                    this.setScrollPerc(100)
-                    this.style.focus.border.fg = this.borderFocus
-                    this.focus()
-                    this.screen.render()
-                    this.scrolling = false
-                    this.emit("scrolling-end")
+                    this._scrollingEnd()
                     skipDataOnce = true
                 }
                 else if (key.full === "up")       this.scroll(-1)
@@ -410,6 +400,21 @@ class XTerm extends blessed.Box {
     }
 
     /*  support scrolling  */
+    _scrollingStart () {
+        this.scrolling = true
+        this.style.focus.border.fg = this.borderScrolling
+        this.focus()
+        this.screen.render()
+        this.emit("scrolling-start")
+    }
+    _scrollingEnd () {
+        this.term.scrollToBottom()
+        this.style.focus.border.fg = this.borderFocus
+        this.focus()
+        this.screen.render()
+        this.scrolling = false
+        this.emit("scrolling-end")
+    }
     getScroll () {
         return this.term.ydisp
     }
@@ -426,31 +431,22 @@ class XTerm extends blessed.Box {
         return this.scrollTo(offset)
     }
     scrollTo (offset) {
-        if (!this.scrolling) {
-            this.scrolling = true
-            this.emit("scrolling-start")
-        }
+        if (!this.scrolling)
+            this._scrollingStart()
         this.term.scrollDisp(offset - this.term.ydisp)
         this.screen.render()
         this.emit("scroll")
     }
     scroll (offset) {
-        if (!this.scrolling) {
-            this.scrolling = true
-            this.emit("scrolling-start")
-        }
+        if (!this.scrolling)
+            this._scrollingStart()
         this.term.scrollDisp(offset)
         this.screen.render()
         this.emit("scroll")
     }
     resetScroll () {
-        this.term.scrollToBottom()
-        this.screen.render()
-        this.emit("scroll")
-        if (this.scrolling) {
-            this.scrolling = false
-            this.emit("scrolling-end")
-        }
+        if (this.scrolling)
+            this._scrollingEnd()
     }
 
     /*  kill widget  */
