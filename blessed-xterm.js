@@ -187,7 +187,7 @@ class XTerm extends blessed.Box {
                 inputHandler(data)
         })
 
-        /*  capture cooked keyboard input from Blessed  */
+        /*  capture cooked keyboard input from Blessed (locally)  */
         this.on("keypress", this._onWidgetEventKeypress = (ch, key) => {
             /*  only in case we are focused  */
             if (this.screen.focused !== this)
@@ -213,6 +213,15 @@ class XTerm extends blessed.Box {
                 else if (key.full === "down")     this.scroll(+1)
                 else if (key.full === "pageup")   this.scroll(-(this.height - 2))
                 else if (key.full === "pagedown") this.scroll(+(this.height - 2))
+            }
+        })
+
+        /*  capture cooked keyboard input from Blessed (globally)  */
+        this.onScreenEvent("keypress", this._onScreenEventKeypress = (ch, key) => {
+            /*  handle ignored keys  */
+            if (this.options.ignoreKeys.indexOf(key.full) >= 0) {
+                skipDataOnce = true
+                return
             }
         })
 
@@ -306,6 +315,8 @@ class XTerm extends blessed.Box {
                 this.screen.program.input.removeListener("data", this._onScreenEventInputData)
             if (this._onWidgetEventKeypress)
                 this.off("keypress", this._onWidgetEventKeypress)
+            if (this._onScreenEventKeypress)
+                this.removeScreenEvent("keypress", this._onScreenEventKeypress)
             if (this._onScreenEventMouse)
                 this.removeScreenEvent("mouse", this._onScreenEventMouse)
         })
