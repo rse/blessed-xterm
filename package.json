@@ -1,0 +1,52 @@
+{
+    "name":        "blessed-xterm",
+    "homepage":    "http://github.com/rse/blessed-xterm",
+    "description": "XTerm Widget for Blessed Curses Environment",
+    "version":     "0.9.0",
+    "license":     "MIT",
+    "author": {
+        "name":    "Ralf S. Engelschall",
+        "email":   "rse@engelschall.com",
+        "url":     "http://engelschall.com"
+    },
+    "keywords": [
+        "blessed", "terminal", "widget", "xterm", "pty"
+    ],
+    "repository": {
+        "type": "git",
+        "url":  "git://github.com/rse/blessed-xterm.git"
+    },
+    "bugs": {
+        "url":  "http://github.com/rse/blessed-xterm/issues"
+    },
+    "devDependencies": {
+        "babel-eslint":                              "~7.2.2",
+        "eslint":                                    "~3.19.0",
+        "eslint-config-standard":                    "~10.2.1",
+        "eslint-plugin-standard":                    "~3.0.1",
+        "eslint-plugin-promise":                     "~3.5.0",
+        "eslint-plugin-import":                      "~2.2.0",
+        "eslint-plugin-node":                        "~4.2.2",
+        "babel-preset-env":                          "~1.4.0",
+        "babel-preset-es2016":                       "~6.24.1",
+        "babel-preset-es2017":                       "~6.24.1",
+        "babel-preset-stage-3":                      "~6.24.1",
+        "babel-preset-stage-2":                      "~6.24.1",
+        "babel-plugin-transform-runtime":            "~6.23.0"
+    },
+    "dependencies" : {
+        "clone":                                     "~2.1.1",
+        "blessed":                                   "~0.1.81",
+        "xterm":                                     "~2.5.0",
+        "node-pty":                                  "~0.6.3"
+    },
+    "engines": {
+        "node":                                      ">=6.0.0"
+    },
+    "scripts": {
+        "prepublish": "npm run lint && npm run build",
+        "lint":       "eslint --config eslint.yaml blessed-xterm.js sample.js",
+        "build":      "babel blessed-xterm.js >blessed-xterm.js5"
+    },
+    "main": "./blessed-xterm.js5"
+}
