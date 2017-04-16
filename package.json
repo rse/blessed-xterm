@@ -37,6 +37,7 @@
     "dependencies" : {
         "clone":                                     "~2.1.1",
         "blessed":                                   "~0.1.81",
+        "jsdom":                                     "~9.12.0",
         "xterm":                                     "~2.5.0",
         "node-pty":                                  "~0.6.3"
     },
