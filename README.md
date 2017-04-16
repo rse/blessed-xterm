@@ -29,6 +29,18 @@ uses the newer [XTerm.js](https://xtermjs.org/) instead of the ancient
 provides full scrollback buffer support and it supports starting and
 stopping multiple commands while the widget is active.
 
+Example
+-------
+
+![Blessed XTerm Sample usage](screenshot.png)
+
+Installation
+------------
+
+```
+$ npm install blessed blessed-xterm
+```
+
 License
 -------
 
