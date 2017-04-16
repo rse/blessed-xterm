@@ -60,6 +60,8 @@ class XTerm extends blessed.Box {
         /*  provide option fallbacks  */
         this.options.shell       = this.options.shell       || null
         this.options.args        = this.options.args        || []
+        this.options.env         = this.options.env         || process.env
+        this.options.cwd         = this.options.cwd         || process.cwd()
         this.options.cursorType  = this.options.cursorType  || "block"
         this.options.cursorBlink = this.options.cursorBlink || false
         this.options.scrollback  = this.options.scrollback  || 1000
@@ -347,7 +349,6 @@ class XTerm extends blessed.Box {
         for (let y = Math.max(yi, 0); y < yl; y++) {
             /*  fetch Blessed Screen and XTerm lines  */
             let sline = this.screen.lines[y]
-            // let tline = this.term.lines.get(scrollback + y - yi)
             let tline = this.term.lines.get(this.term.ydisp + y - yi)
             if (!sline || !tline)
                 break
@@ -457,19 +458,16 @@ class XTerm extends blessed.Box {
     }
 
     /*  spawn shell command on Pty  */
-    spawn (shell, args) {
-        this.options.shell = shell
-        this.options.args  = args
-        this.pty = Pty.fork(this.options.shell, this.options.args, {
+    spawn (shell, args, cwd, env) {
+        this.pty = Pty.fork(shell, args, {
             name:  "xterm",
             cols:  this.width  - this.iwidth,
             rows:  this.height - this.iheight,
-            cwd:   process.env.HOME,
-            env:   this.options.env || process.env
+            cwd:   cwd || this.options.cwd || process.cwd(),
+            env:   env || this.options.env || process.env
         })
         this.pty.on("data", (data) => {
             this.write(data)
-            // this.screen.render()
         })
         this.pty.on("exit", (code) => {
             this.emit("exit", code || 0)
