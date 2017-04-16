@@ -13,10 +13,11 @@ Blessed-XTerm
 Abstract
 --------
 
-This is an XTerm widget for the flexible
+This is an XTerm emulating terminal widget for the flexible
 [Blessed](https://github.com/chjj/blessed) Curses environment. It allows
 the execution of interactive terminal programs in a Blessed Box widget
-while fully emulating an XTerm rendering environment to those programs.
+while providing a full-featured emulated XTerm rendering environment to
+those programs.
 
 Blessed XTerm is actually a more modern variant of the Terminal widget
 as shipped with the Blessed Curses environment. The difference to the
