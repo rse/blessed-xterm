@@ -23,9 +23,9 @@ Blessed XTerm is actually a more modern variant of the Terminal widget
 as shipped with the Blessed Curses environment. The difference to the
 regular Terminal widget is: the Blessed XTerm widget it uses the newer
 [node-pty](https://github.com/Tyriar/node-pty) instead of the ancient
-[pty.js](https://github.com/chjj/pty.js/) PTY management module, it
+[pty.js](https://github.com/chjj/pty.js/) module for Pseudo TTY management, it
 uses the newer [XTerm.js](https://xtermjs.org/) instead of the ancient
-[Term.js](https://github.com/chjj/term.js/) XTerm emulation module, it
+[Term.js](https://github.com/chjj/term.js/) module for XTerm emulation, it
 provides full scrollback buffer support and it supports starting and
 stopping multiple commands while the widget is active.
 
