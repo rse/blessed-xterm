@@ -174,13 +174,16 @@ class XTerm extends blessed.Box {
         }
 
         /*  pass raw keyboard input from Blessed to XTerm  */
-        let skipDataOnce = false
+        this.skipInputDataOnce   = false
+        this.skipInputDataAlways = false
         this.screen.program.input.on("data", this._onScreenEventInputData = (data) => {
             /*  only in case we are focused and not in scrolling mode  */
             if (this.screen.focused !== this || this.scrolling)
                 return
-            if (skipDataOnce) {
-                skipDataOnce = false
+            if (this.skipInputDataAlways)
+                return
+            if (this.skipInputDataOnce) {
+                this.skipInputDataOnce = false
                 return
             }
             if (!_isMouse(data))
@@ -195,7 +198,7 @@ class XTerm extends blessed.Box {
 
             /*  handle ignored keys  */
             if (this.options.ignoreKeys.indexOf(key.full) >= 0) {
-                skipDataOnce = true
+                this.skipInputDataOnce = true
                 return
             }
 
@@ -207,7 +210,7 @@ class XTerm extends blessed.Box {
                 if (   key.full === this.options.controlKey
                     || key.full.match(/^(?:escape|return|space)$/)) {
                     this._scrollingEnd()
-                    skipDataOnce = true
+                    this.skipInputDataOnce = true
                 }
                 else if (key.full === "up")       this.scroll(-1)
                 else if (key.full === "down")     this.scroll(+1)
@@ -220,7 +223,7 @@ class XTerm extends blessed.Box {
         this.onScreenEvent("keypress", this._onScreenEventKeypress = (ch, key) => {
             /*  handle ignored keys  */
             if (this.options.ignoreKeys.indexOf(key.full) >= 0)
-                skipDataOnce = true
+                this.skipInputDataOnce = true
         })
 
         /*  pass mouse input from Blessed to XTerm  */
@@ -323,6 +326,11 @@ class XTerm extends blessed.Box {
         this.pty = null
         if (this.options.shell !== null)
             this.spawn(this.options.shell, this.options.args)
+    }
+
+    /*  process input data  */
+    processInput (process) {
+        this.skipInputDataAlways = !process
     }
 
     /*  write data to the terminal  */
