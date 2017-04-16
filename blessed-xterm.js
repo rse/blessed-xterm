@@ -198,6 +198,7 @@ class XTerm extends blessed.Box {
 
             /*  handle scrolling keys  */
             if (   !this.scrolling
+                && this.options.controKey !== "none"
                 && key.full === this.options.controlKey)
                 this._scrollingStart()
             else if (this.scrolling) {
