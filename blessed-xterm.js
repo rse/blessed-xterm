@@ -66,6 +66,7 @@ class XTerm extends blessed.Box {
         this.options.cursorBlink = this.options.cursorBlink || false
         this.options.scrollback  = this.options.scrollback  || 1000
         this.options.controlKey  = this.options.controlKey  || "C-w"
+        this.options.ignoreKeys  = this.options.ignoreKeys  || []
 
         /*  ensure style is available  */
         this.options.style       = this.options.style       || {}
@@ -191,6 +192,12 @@ class XTerm extends blessed.Box {
             /*  only in case we are focused  */
             if (this.screen.focused !== this)
                 return
+
+            /*  handle ignored keys  */
+            if (this.options.ignoreKeys.indexOf(key.full) >= 0) {
+                skipDataOnce = true
+                return
+            }
 
             /*  handle scrolling keys  */
             if (   !this.scrolling
