@@ -167,12 +167,6 @@ class XTerm extends blessed.Box {
                 || /^\x1b\[(O|I)/.test(s)
         }
 
-        /*  the Blessed input handler  */
-        const inputHandler = (data) => {
-            if (this.pty !== null)
-                this.pty.write(data)
-        }
-
         /*  pass raw keyboard input from Blessed to XTerm  */
         this.skipInputDataOnce   = false
         this.skipInputDataAlways = false
@@ -187,7 +181,7 @@ class XTerm extends blessed.Box {
                 return
             }
             if (!_isMouse(data))
-                inputHandler(data)
+                this.injectInput(data)
         })
 
         /*  capture cooked keyboard input from Blessed (locally)  */
@@ -278,7 +272,7 @@ class XTerm extends blessed.Box {
             }
 
             /*  pass-through  */
-            inputHandler(s)
+            this.injectInput(s)
         })
 
         /*  pass-through Blessed focus/blur events to XTerm  */
@@ -329,8 +323,14 @@ class XTerm extends blessed.Box {
     }
 
     /*  process input data  */
-    processInput (process) {
+    enableInput (process) {
         this.skipInputDataAlways = !process
+    }
+
+    /*  inject input data  */
+    injectInput (data) {
+        if (this.pty !== null)
+            this.pty.write(data)
     }
 
     /*  write data to the terminal  */
