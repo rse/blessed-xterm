@@ -219,10 +219,8 @@ class XTerm extends blessed.Box {
         /*  capture cooked keyboard input from Blessed (globally)  */
         this.onScreenEvent("keypress", this._onScreenEventKeypress = (ch, key) => {
             /*  handle ignored keys  */
-            if (this.options.ignoreKeys.indexOf(key.full) >= 0) {
+            if (this.options.ignoreKeys.indexOf(key.full) >= 0)
                 skipDataOnce = true
-                return
-            }
         })
 
         /*  pass mouse input from Blessed to XTerm  */
