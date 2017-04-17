@@ -67,6 +67,11 @@ terminal[1] = new XTerm(Object.assign({}, opts, {
     label:   "Sample XTerm #2"
 }))
 
+let hint = "\r\nPress CTRL+q to stop sample program.\r\n" +
+    "Press F1 or F2 to switch between terminals.\r\n\r\n"
+terminal[0].write(hint)
+terminal[1].write(hint)
+
 terminal[focused].focus()
 
 screen.key([ "f1" ], (ch, key) => {
@@ -87,7 +92,7 @@ const terminate = () => {
     process.exit(0)
 }
 
-screen.key([ "C-c" ], (ch, key) => {
+screen.key([ "C-q" ], (ch, key) => {
     terminate()
 })
 
