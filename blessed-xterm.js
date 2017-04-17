@@ -365,12 +365,22 @@ class XTerm extends blessed.Box {
 
         /*  iterate over all lines  */
         let cursor
+        let dirtyAny = false
         for (let y = Math.max(yi, 0); y < yl; y++) {
             /*  fetch Blessed Screen and XTerm lines  */
             let sline = this.screen.lines[y]
             let tline = this.term.lines.get(this.term.ydisp + y - yi)
             if (!sline || !tline)
                 break
+
+            /*  update sline from tline  */
+            let dirty = false
+            const updateSLine = (s1, s2, val) => {
+                if (sline[s1][s2] !== val) {
+                    sline[s1][s2] = val
+                    dirty = true
+                }
+            }
 
             /*  determine cursor column position  */
             if (   y === yi + this.term.y
@@ -387,41 +397,45 @@ class XTerm extends blessed.Box {
                 if (!sline[x] || !tline[x - xi])
                     break
 
-                /*  copy attributes  */
-                sline[x][0] = tline[x - xi][0]
+                /*  read terminal attribute and character  */
+                let x0 = tline[x - xi][0]
+                let x1 = tline[x - xi][1]
 
                 /*  handle cursor  */
                 if (x === cursor) {
                     if (this.options.cursorType === "line") {
-                        sline[x][0] = this.dattr
-                        sline[x][1] = "\u2502"
-                        continue
+                        x0 = this.dattr
+                        x1 = "\u2502"
                     }
                     else if (this.options.cursorType === "underline")
-                        sline[x][0] = this.dattr | (2 << 18)
+                        x0 = this.dattr | (2 << 18)
                     else if (this.options.cursorType === "block")
-                        sline[x][0] = this.dattr | (8 << 18)
+                        x0 = this.dattr | (8 << 18)
                 }
-
-                /*  copy character  */
-                sline[x][1] = tline[x - xi][1]
 
                 /*  default foreground is 257  */
-                if (((sline[x][0] >> 9) & 0x1ff) === 257) {
-                    sline[x][0] &= ~(0x1ff << 9)
-                    sline[x][0] |= ((this.dattr >> 9) & 0x1ff) << 9
-                }
+                if (((x0 >> 9) & 0x1ff) === 257)
+                    x0 = (x0 & ~(0x1ff << 9)) | (((this.dattr >> 9) & 0x1ff) << 9)
 
                 /*  default background is 256  */
-                if ((sline[x][0] & 0x1ff) === 256) {
-                    sline[x][0] &= ~0x1ff
-                    sline[x][0] |= this.dattr & 0x1ff
-                }
+                if ((x0 & 0x1ff) === 256)
+                    x0 = (x0 & ~0x1ff) | (this.dattr & 0x1ff)
+
+                /*  write screen attribute and character  */
+                updateSLine(x, 0, x0)
+                updateSLine(x, 1, x1)
             }
 
             /*  mark Blessed Screen line as dirty  */
-            sline.dirty = true
+            if (dirty) {
+                sline.dirty = true
+                dirtyAny    = true
+            }
         }
+
+        /*  indicate that we updated our rendered content  */
+        if (dirtyAny > 0)
+            this.emit("update")
 
         return ret
     }
