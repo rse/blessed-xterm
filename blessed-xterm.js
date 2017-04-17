@@ -499,6 +499,10 @@ class XTerm extends blessed.Box {
         })
         this.pty.on("data", (data) => {
             this.write(data)
+            if (data instanceof Buffer)
+                data = data.toString()
+            if (data.match(/\x07/))
+                this.emit("beep")
         })
         this.pty.on("exit", (code) => {
             this.emit("exit", code || 0)
