@@ -31,6 +31,9 @@ emulation, (3) it provides full scrollback buffer support and (4) it
 supports starting and stopping multiple commands while the widget is
 active.
 
+To see Blessed XTerm in action, check out [stmux](https://github.com/rse/stmux),
+the utility for which Blessed XTerm originally was developed for.
+
 Example
 -------
 
