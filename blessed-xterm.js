@@ -126,7 +126,9 @@ class XTerm extends blessed.Box {
             The alternative would be to listen on the XTerm "refresh" event,
             but this way XTerm would uselessly render the DOM elements.  */
         this.term.refresh = (start, end) => {
-            this.screen.render(start, end)
+            /*  enforce a new screen rendering,
+                which in turn will call our render() method, too  */
+            this.screen.render()
         }
 
         /*  monkey-patch XTerm to prevent any key handling  */
@@ -342,13 +344,11 @@ class XTerm extends blessed.Box {
     }
 
     /*  render the widget  */
-    render (startLine = -1, endLine = -1) {
+    render () {
         /*  call the underlying Element's rendering function  */
         let ret = this._render()
         if (!ret)
             return
-
-        /*  FIXME: optionally optimize by using startLine/endLine  */
 
         /*  framebuffer synchronization:
             borrowed from original Blessed Terminal widget
