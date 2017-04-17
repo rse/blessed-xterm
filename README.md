@@ -113,6 +113,26 @@ widget plus the following ones:
 - `kill(): Void`:<br/>
   Tear down the widget.
 
+The Blessed XTerm widget supports all events of the Blessed Box
+widget plus the following ones:
+
+- `title` (`title: String`):<br/>
+  The program output a sequence to update the terminal with `title`.
+- `beep` ():<br/>
+  The program output a sequence to beep the terminal.
+- `scrolling-start` ():<br/>
+  The scrolling mode was started.
+- `scrolling-end` ():<br/>
+  The scrolling mode was ended.
+- `scroll` ():<br/>
+  The content was scrolled.
+- `exit` (`code: Number`):<br/>
+  The spawned program terminated with `code`.
+  Usually used in combination with the Blessed XTerm `spawn()` method.
+- `update` ():<br/>
+  The rendering engine just updated the widget content.
+  Usually used in combination with the Blessed Element `screenshot()` method.
+
 License
 -------
 
