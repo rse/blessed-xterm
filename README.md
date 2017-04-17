@@ -52,6 +52,67 @@ you need Microsoft's Visual C/C++ Build Tools installed (you can
 conveniently install them with `npm install --global --production
 windows-build-tools` from an elevated shell).
 
+Usage
+-----
+
+The Blessed XTerm widget supports all options of the Blessed Box
+widget plus the following ones:
+
+- `shell` (default: `process.env.SHELL || "sh"`):<br/>
+  The shell to execute.
+- `args` (default: `[]`):<br/>
+  The arguments for the shell to execute.
+- `env` (default: `process.env`):<br/>
+  The environment variables for the shell to execute.
+- `cwd` (default: `process.cwd()`):<br/>
+  The current working directory for the shell to execute.
+- `cursorType` (default: `block`):<br/>
+  The type of cursor. Either `block`, `underline` or `line`.
+- `cursorBlink` (default: `false`):<br/>
+  Whether the cursor should blink.
+- `scrollback` (default: `1000`):<br/>
+  The amount of lines for scrolling back.
+- `controlKey` (default: `C-w`):<br/>
+  The control key to enter the scrolling mode.
+- `ignoreKeys` (default: `[]`):<br/>
+  The keys to ignore.
+- `style.scrolling.border.fg` (default: `red`):<br/>
+  The color of the border during scrolling mode.
+
+The Blessed XTerm widget supports all methods of the Blessed Box
+widget plus the following ones:
+
+- `enableInput(enable: Boolean): Void`:<br/>
+  Enable or disable the input handling.
+- `injectInput(input: String): Void`:<br/>
+  Inject input into the terminal as it was typed by the user.
+  The input is actually sent to the executed program.
+- `write(output: String): Void`:<br/>
+  Write output to the terminal as it was output by the executed program.
+  The output is just displayed.
+- `getScrollHeight(): Number`:<br/>
+  Get the actual height in lines of the scrolling area.
+- `getScroll(): Number`:<br/>
+  Get the current scroll index in lines.
+- `setScroll(index: Number): Void`:<br/>
+  Scroll the content to an absolute index in lines (same as scrollTo).
+- `scrollTo(index: Number): Void`:<br/>
+  Scroll the content to an absolute index in lines (same as setScroll).
+- `getScrollPerc(): Number`:<br/>
+  Get the current scroll index in percentage (0-100).
+- `setScrollPerc(percent: Number): Void`:<br/>
+  Set the current scroll index in percentage (0-100).
+- `scroll(offset: Number): Void`:<br/>
+  Scroll the content by a relative offset of lines.
+- `resetScroll(): Void`:<br/>
+  Reset the scrolling by scrolling to the bottom of the scroll buffer.
+- `spawn (shell: String, args: String[], cwd?: String, env?: Object): Void`:<br/>
+  Spawn/run a command, optionally first terminating a currently running one.
+- `terminate(): Void`:<br/>
+  Terminate a currently running/spawned program.
+- `kill(): Void`:<br/>
+  Tear down the widget.
+
 License
 -------
 
