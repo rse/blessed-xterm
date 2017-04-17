@@ -41,6 +41,14 @@ Installation
 $ npm install blessed blessed-xterm
 ```
 
+NOTICE: The `node-pty` dependency module is a Node module with a native
+component. For this a C/C++ compiler environment is required during `npm
+install`. For macOS ensure you have Apple XCode and its Command-Line
+Tools installed (you can find them in XCode under menu `Xcode` /
+`Preferences` / `Downloads`). For Windows you need Microsoft's Visual
+C/C++ Build Tools installed (you can install them with `npm install
+--global --production windows-build-tools` from an elevated shell).
+
 License
 -------
 
