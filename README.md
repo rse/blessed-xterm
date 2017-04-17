@@ -13,21 +13,23 @@ Blessed-XTerm
 Abstract
 --------
 
-This is an XTerm emulating terminal widget for the flexible
-[Blessed](https://github.com/chjj/blessed) Curses environment. It allows
-the execution of interactive terminal programs in a Blessed Box widget
-while providing a full-featured emulated XTerm rendering environment to
-those programs.
+This is an XTerm emulating terminal widget for the awesome
+[Blessed](https://github.com/chjj/blessed) Curses environment of
+Node.js. It allows the execution of interactive terminal programs in a
+Blessed Box-derived widget while providing a full-featured and fully
+compatible emulated XTerm rendering environment to those programs.
 
 Blessed XTerm is actually a more modern variant of the Terminal widget
 as shipped with the Blessed Curses environment. The difference to the
-regular Terminal widget is: the Blessed XTerm widget it uses the newer
-[node-pty](https://github.com/Tyriar/node-pty) instead of the ancient
-[pty.js](https://github.com/chjj/pty.js/) module for Pseudo TTY management, it
-uses the newer [XTerm.js](https://xtermjs.org/) instead of the ancient
-[Term.js](https://github.com/chjj/term.js/) module for XTerm emulation, it
-provides full scrollback buffer support and it supports starting and
-stopping multiple commands while the widget is active.
+regular Terminal widget is: (1) the Blessed XTerm widget uses the
+newer and more portable [node-pty](https://github.com/Tyriar/node-pty)
+module, instead of the ancient [pty.js](https://github.com/chjj/pty.js/)
+module, for Pseudo TTY management, (2) it uses the newer and more
+sophisticated [XTerm.js](https://xtermjs.org/) module, instead of the
+ancient [Term.js](https://github.com/chjj/term.js/) module, for XTerm
+emulation, (3) it provides full scrollback buffer support and (4) it
+supports starting and stopping multiple commands while the widget is
+active.
 
 Example
 -------
@@ -41,13 +43,14 @@ Installation
 $ npm install blessed blessed-xterm
 ```
 
-NOTICE: The `node-pty` dependency module is a Node module with a native
-component. For this a C/C++ compiler environment is required during `npm
-install`. For macOS ensure you have Apple XCode and its Command-Line
-Tools installed (you can find them in XCode under menu `Xcode` /
-`Preferences` / `Downloads`). For Windows you need Microsoft's Visual
-C/C++ Build Tools installed (you can install them with `npm install
---global --production windows-build-tools` from an elevated shell).
+NOTICE: The `node-pty` dependency module is a Node.js module with
+a native C/C++ component. For this a C/C++ compiler environment is
+required during `npm install`. For macOS, ensure you have Apple XCode
+and its Command-Line Tools installed (you can find them in XCode
+under menu `Xcode` / `Preferences` / `Downloads`). For Windows,
+you need Microsoft's Visual C/C++ Build Tools installed (you can
+conveniently install them with `npm install --global --production
+windows-build-tools` from an elevated shell).
 
 License
 -------
