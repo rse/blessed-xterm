@@ -55,8 +55,12 @@ windows-build-tools` from an elevated shell).
 Usage
 -----
 
-The Blessed XTerm widget supports all options of the Blessed Box
-widget plus the following ones:
+The Blessed XTerm widget supports all configuration options of
+[Blessed Box](https://github.com/chjj/blessed#box-from-element),
+[Blessed Element](https://github.com/chjj/blessed#element-from-node),
+[Blessed Node](https://github.com/chjj/blessed#node-from-eventemitter) and
+[Node.js EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter),
+plus the following ones:
 
 - `shell` (default: `process.env.SHELL || "sh"`):<br/>
   The shell to execute.
@@ -79,8 +83,12 @@ widget plus the following ones:
 - `style.scrolling.border.fg` (default: `red`):<br/>
   The color of the border during scrolling mode.
 
-The Blessed XTerm widget supports all methods of the Blessed Box
-widget plus the following ones:
+The Blessed XTerm widget supports all methods of
+[Blessed Box](https://github.com/chjj/blessed#box-from-element),
+[Blessed Element](https://github.com/chjj/blessed#element-from-node),
+[Blessed Node](https://github.com/chjj/blessed#node-from-eventemitter) and
+[Node.js EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter),
+plus the following ones:
 
 - `enableInput(enable: Boolean): Void`:<br/>
   Enable or disable the input handling.
@@ -113,8 +121,12 @@ widget plus the following ones:
 - `kill(): Void`:<br/>
   Tear down the widget.
 
-The Blessed XTerm widget supports all events of the Blessed Box
-widget plus the following ones:
+The Blessed XTerm widget supports all events of
+[Blessed Box](https://github.com/chjj/blessed#box-from-element),
+[Blessed Element](https://github.com/chjj/blessed#element-from-node),
+[Blessed Node](https://github.com/chjj/blessed#node-from-eventemitter) and
+[Node.js EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter),
+plus the following ones:
 
 - `title` (`title: String`):<br/>
   The program output a sequence to update the terminal with `title`.
