@@ -58,7 +58,7 @@ class XTerm extends blessed.Box {
         super(options)
 
         /*  provide option fallbacks  */
-        this.options.shell       = this.options.shell       || null
+        this.options.shell       = this.options.shell       || process.env.SHELL || "sh"
         this.options.args        = this.options.args        || []
         this.options.env         = this.options.env         || process.env
         this.options.cwd         = this.options.cwd         || process.cwd()
@@ -92,7 +92,7 @@ class XTerm extends blessed.Box {
             && this.options.style.scrolling.border.fg)
             this.borderScrolling = this.options.style.scrolling.border.fg
         else
-            this.borderScrolling = this.borderFocus
+            this.borderScrolling = "red"
 
         /*  initialize scrolling mode  */
         this.scrolling = false
@@ -504,6 +504,8 @@ class XTerm extends blessed.Box {
 
     /*  spawn shell command on Pty  */
     spawn (shell, args, cwd, env) {
+        if (this.pty)
+            this.terminate()
         this.pty = Pty.fork(shell, args, {
             name:  "xterm",
             cols:  this.width  - this.iwidth,
