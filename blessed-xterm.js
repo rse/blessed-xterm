@@ -57,21 +57,27 @@ class XTerm extends blessed.Box {
         /*  pass-through options to underlying Blessed Box element  */
         super(options)
 
+        /*  helper function for setting options  */
+        const setOption = (cfg, name, def) => {
+            if (this.options[name] === undefined)
+                this.options[name] = def
+        }
+
         /*  provide option fallbacks  */
-        this.options.shell       = this.options.shell       || process.env.SHELL || "sh"
-        this.options.args        = this.options.args        || []
-        this.options.env         = this.options.env         || process.env
-        this.options.cwd         = this.options.cwd         || process.cwd()
-        this.options.cursorType  = this.options.cursorType  || "block"
-        this.options.cursorBlink = this.options.cursorBlink || false
-        this.options.scrollback  = this.options.scrollback  || 1000
-        this.options.controlKey  = this.options.controlKey  || "C-w"
-        this.options.ignoreKeys  = this.options.ignoreKeys  || []
+        setOption(this.options, "shell",       process.env.SHELL || "sh")
+        setOption(this.options, "args",        [])
+        setOption(this.options, "env",         process.env)
+        setOption(this.options, "cwd",         process.cwd())
+        setOption(this.options, "cursorType",  "block")
+        setOption(this.options, "cursorBlink", false)
+        setOption(this.options, "scrollback",  1000)
+        setOption(this.options, "controlKey",  "C-w")
+        setOption(this.options, "ignoreKeys",  [])
 
         /*  ensure style is available  */
-        this.options.style       = this.options.style       || {}
-        this.options.style.bg    = this.options.style.bg    || "default"
-        this.options.style.fg    = this.options.style.fg    || "default"
+        setOption(this.options,       "style", {})
+        setOption(this.options.style, "bg",    "default")
+        setOption(this.options.style, "fg",    "default")
 
         /*  determine border colors  */
         if (   this.options.style
