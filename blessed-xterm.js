@@ -440,7 +440,7 @@ class XTerm extends blessed.Box {
         return ret
     }
 
-    /*  support scrolling  */
+    /*  support scrolling similar to Blessed ScrolledBox  */
     _scrollingStart () {
         this.scrolling = true
         this.style.focus.border.fg = this.borderScrolling
