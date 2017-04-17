@@ -283,9 +283,11 @@ class XTerm extends blessed.Box {
         /*  pass-through Blessed resize events to XTerm/Pty  */
         this.on("resize", () => {
             const nextTick = global.setImmediate || process.nextTick.bind(process)
-            let width  = this.width  - this.iwidth
-            let height = this.height - this.iheight
             nextTick(() => {
+                /*  determine new width/height  */
+                let width  = this.width  - this.iwidth
+                let height = this.height - this.iheight
+
                 /*  pass-through to XTerm  */
                 this.term.resize(width, height)
 
