@@ -38,6 +38,8 @@ let terminal = []
 let opts = {
     shell:         process.env.SHELL || "sh",
     args:          [],
+    env:           process.env,
+    cwd:           process.cwd(),
     border:        "line",
     scrollback:    1000,
     style: {
