@@ -535,7 +535,6 @@ class XTerm extends blessed.Box {
     terminate () {
         if (this.pty) {
             this.pty.destroy()
-            this.pty.kill()
             this.pty = null
         }
     }
