@@ -512,12 +512,13 @@ class XTerm extends blessed.Box {
     spawn (shell, args, cwd, env) {
         if (this.pty)
             this.terminate()
+        env = Object.assign({}, env || this.options.env || process.env, { TERM: "xterm" })
         this.pty = Pty.fork(shell, args, {
             name:  "xterm",
             cols:  this.width  - this.iwidth,
             rows:  this.height - this.iheight,
             cwd:   cwd || this.options.cwd || process.cwd(),
-            env:   env || this.options.env || process.env
+            env:   env
         })
         this.pty.on("data", (data) => {
             this.write(data)
