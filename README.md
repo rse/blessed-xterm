@@ -75,8 +75,6 @@ plus the following ones:
   The current working directory for the shell to execute.
 - `cursorType` (default: `block`):<br/>
   The type of cursor. Either `block`, `underline` or `line`.
-- `cursorBlink` (default: `false`):<br/>
-  Whether the cursor should blink.
 - `scrollback` (default: `1000`):<br/>
   The amount of lines for scrolling back.
 - `controlKey` (default: `C-w`):<br/>

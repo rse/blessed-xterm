@@ -69,7 +69,6 @@ class XTerm extends blessed.Box {
         setOption(this.options, "env",         process.env)
         setOption(this.options, "cwd",         process.cwd())
         setOption(this.options, "cursorType",  "block")
-        setOption(this.options, "cursorBlink", false)
         setOption(this.options, "scrollback",  1000)
         setOption(this.options, "controlKey",  "C-w")
         setOption(this.options, "ignoreKeys",  [])
@@ -122,7 +121,7 @@ class XTerm extends blessed.Box {
         this.term = XTermJS({
             cols:        this.width  - this.iwidth,
             rows:        this.height - this.iheight,
-            cursorBlink: this.options.cursorBlink,
+            cursorBlink: false,
             scrollback:  this.options.scrollback !== "none" ?
                          this.options.scrollback : this.height - this.iheight
         })

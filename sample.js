@@ -40,6 +40,7 @@ let opts = {
     args:          [],
     env:           process.env,
     cwd:           process.cwd(),
+    cursorType:    "block",
     border:        "line",
     scrollback:    1000,
     style: {
