@@ -26,14 +26,15 @@
 const clone   = require("clone")
 const blessed = require("blessed")
 const Pty     = require("node-pty")
-const jsdom   = require("jsdom").jsdom
+const jsdom   = require("jsdom")
 
 /*  CRUEL HACK (part 1/2):
     xterm.js accesses the global "window" once on loading,
     so we have to emulate this environment temporarily  */
-var document = jsdom()
 var window = global.window
-global.window = document.defaultView
+var dom = new jsdom.JSDOM()
+global.window = dom.window
+var document = dom.window.document
 
 /*  load xterm.js  */
 const XTermJS = require("xterm")
