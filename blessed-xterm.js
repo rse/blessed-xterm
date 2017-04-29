@@ -115,10 +115,6 @@ class XTerm extends blessed.Box {
 
     /*  bootstrap the API class  */
     _bootstrap () {
-        /*  enable mouse support in tmux  */
-        if (this.screen.program.tmux && this.screen.program.tmuxVersion >= 2)
-            this.screen.program.enableMouse()
-
         /*  create XTerm emulation  */
         this.term = XTermJS({
             cols:        this.width  - this.iwidth,
