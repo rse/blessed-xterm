@@ -457,7 +457,7 @@ class XTerm extends blessed.Box {
         return this.term.rows - 1
     }
     getScrollPerc () {
-        return (this.term.ydisp / this.term.ybase) * 100
+        return (this.term.ybase > 0 ? ((this.term.ydisp / this.term.ybase) * 100) : 100)
     }
     setScrollPerc (i) {
         return this.setScroll(Math.floor((i / 100) * this.term.ybase))
