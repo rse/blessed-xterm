@@ -65,14 +65,15 @@ class XTerm extends blessed.Box {
         }
 
         /*  provide option fallbacks  */
-        setOption(this.options, "shell",       process.env.SHELL || "sh")
-        setOption(this.options, "args",        [])
-        setOption(this.options, "env",         process.env)
-        setOption(this.options, "cwd",         process.cwd())
-        setOption(this.options, "cursorType",  "block")
-        setOption(this.options, "scrollback",  1000)
-        setOption(this.options, "controlKey",  "C-w")
-        setOption(this.options, "ignoreKeys",  [])
+        setOption(this.options, "shell",            process.env.SHELL || "sh")
+        setOption(this.options, "args",             [])
+        setOption(this.options, "env",              process.env)
+        setOption(this.options, "cwd",              process.cwd())
+        setOption(this.options, "cursorType",       "block")
+        setOption(this.options, "scrollback",       1000)
+        setOption(this.options, "controlKey",       "C-w")
+        setOption(this.options, "ignoreKeys",       [])
+        setOption(this.options, "mousePassthrough", false)
 
         /*  ensure style is available  */
         setOption(this.options,       "style", {})
@@ -230,59 +231,50 @@ class XTerm extends blessed.Box {
         })
 
         /*  pass mouse input from Blessed to XTerm  */
-        this.onScreenEvent("mouse", this._onScreenEventMouse = (data) => {
-            /*  only in case we are focused  */
-            if (this.screen.focused !== this)
-                return
+        if (this.options.mousePassthrough) {
+            this.onScreenEvent("mouse", this._onScreenEventMouse = (ev) => {
+                /*  only in case we are focused  */
+                if (this.screen.focused !== this)
+                    return
 
-            /*  mouse event handling:
-                borrowed from original Blessed Terminal widget
-                Copyright (c) 2013-2015 Christopher Jeffrey et al.  */
+                /*  only in case we are touched  */
+                if (   (ev.x < this.aleft + this.ileft)
+                    || (ev.y < this.atop  + this.itop)
+                    || (ev.x > this.aleft - this.ileft + this.width)
+                    || (ev.y > this.atop  - this.itop  + this.height))
+                    return
 
-            /*  only in case we are touched  */
-            if (data.x < this.aleft + this.ileft              ) return
-            if (data.y < this.atop  + this.itop               ) return
-            if (data.x > this.aleft - this.ileft + this.width ) return
-            if (data.y > this.atop  - this.itop  + this.height) return
+                /*  generate canonical mouse input sequence,
+                    borrowed from original Blessed Terminal widget
+                    Copyright (c) 2013-2015 Christopher Jeffrey et al.  */
+                let b = ev.raw[0]
+                let x = ev.x - this.aleft
+                let y = ev.y - this.atop
+                let s
+                if (this.term.urxvtMouse) {
+                    if (this.screen.program.sgrMouse)
+                        b += 32
+                    s = "\x1b[" + b + ";" + (x + 32) + ";" + (y + 32) + "M"
+                }
+                else if (this.term.sgrMouse) {
+                    if (!this.screen.program.sgrMouse)
+                        b -= 32
+                    s = "\x1b[<" + b + ";" + x + ";" + y +
+                        (ev.action === "mousedown" ? "M" : "m")
+                }
+                else {
+                    if (this.screen.program.sgrMouse)
+                        b += 32
+                    s = "\x1b[M" +
+                        String.fromCharCode(b) +
+                        String.fromCharCode(x + 32) +
+                        String.fromCharCode(y + 32)
+                }
 
-            /*  only in case XTerm handles mouse events  */
-            if (!(   this.term.x10Mouse
-                  || this.term.vt200Mouse
-                  || this.term.normalMouse
-                  || this.term.mouseEvents
-                  || this.term.utfMouse
-                  || this.term.sgrMouse
-                  || this.term.urxvtMouse))
-                return
-
-            /*  generate canonical mouse input sequence  */
-            let b = data.raw[0]
-            let x = data.x - this.aleft
-            let y = data.y - this.atop
-            let s
-            if (this.term.urxvtMouse) {
-                if (this.screen.program.sgrMouse)
-                    b += 32
-                s = "\x1b[" + b + ";" + (x + 32) + ";" + (y + 32) + "M"
-            }
-            else if (this.term.sgrMouse) {
-                if (!this.screen.program.sgrMouse)
-                    b -= 32
-                s = "\x1b[<" + b + ";" + x + ";" + y +
-                    (data.action === "mousedown" ? "M" : "m")
-            }
-            else {
-                if (this.screen.program.sgrMouse)
-                    b += 32
-                s = "\x1b[M" +
-                    String.fromCharCode(b) +
-                    String.fromCharCode(x + 32) +
-                    String.fromCharCode(y + 32)
-            }
-
-            /*  pass-through  */
-            this.injectInput(s)
-        })
+                /*  pass-through mouse event sequence  */
+                this.injectInput(s)
+            })
+        }
 
         /*  pass-through Blessed focus/blur events to XTerm  */
         this.on("focus", () => { this.term.focus() })

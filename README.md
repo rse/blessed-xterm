@@ -81,6 +81,9 @@ plus the following ones:
   The control key to enter the scrolling mode.
 - `ignoreKeys` (default: `[]`):<br/>
   The keys to ignore.
+- `mousePassthrough` (default: `false`):<br/>
+  The mouse events are captured and passed-through to
+  the XTerm emulation as mouse key sequences.
 - `style.scrolling.border.fg` (default: `red`):<br/>
   The color of the border during scrolling mode.
 
