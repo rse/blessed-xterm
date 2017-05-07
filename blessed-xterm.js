@@ -141,7 +141,7 @@ class XTerm extends blessed.Box {
         /*  attach XTerm to Virtual DOM  */
         var container = document.createElement("div")
         document.body.appendChild(container)
-        this.term.open(container)
+        this.term.open(container, true)
 
         /*  pass-through title changes by application  */
         this.term.on("title", (title) => {
