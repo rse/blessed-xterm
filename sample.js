@@ -88,6 +88,25 @@ screen.key([ "f2" ], (ch, key) => {
     }
 })
 
+terminal.forEach((term) => {
+    term.key("pagedown", () => {
+        if (!term.scrolling)
+            term.scroll(0)
+        let n = Math.max(1, Math.floor(term.height * 0.10))
+        term.scroll(+n)
+        if (Math.ceil(term.getScrollPerc()) === 100)
+            term.resetScroll()
+    })
+    term.key("pageup", () => {
+        if (!term.scrolling)
+            term.scroll(0)
+        let n = Math.max(1, Math.floor(term.height * 0.10))
+        term.scroll(-n)
+        if (Math.ceil(term.getScrollPerc()) === 100)
+            term.resetScroll()
+    })
+})
+
 const terminate = () => {
     screen.destroy()
     process.exit(0)
