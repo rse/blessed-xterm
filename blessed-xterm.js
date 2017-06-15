@@ -87,7 +87,7 @@ class XTerm extends blessed.Box {
             && this.options.style.focus.border.fg)
             this.borderFocus = this.options.style.focus.border.fg
         else if (
-               this.options.style
+            this.options.style
             && this.options.style.border
             && this.options.style.border.fg)
             this.borderFocus = this.options.style.border.fg
@@ -121,7 +121,7 @@ class XTerm extends blessed.Box {
             rows:        this.height - this.iheight,
             cursorBlink: false,
             scrollback:  this.options.scrollback !== "none" ?
-                         this.options.scrollback : this.height - this.iheight
+                this.options.scrollback : this.height - this.iheight
         })
 
         /*  monkey-patch XTerm to prevent it from effectively rendering
