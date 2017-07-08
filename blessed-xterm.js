@@ -29,7 +29,6 @@ const Pty     = require("node-pty")
 const jsdom   = require("jsdom")
 
 /*  CRUEL HACK: xterm.js accesses the global "window", so we have to emulate this environment  */
-var window = global.window
 var dom = new jsdom.JSDOM()
 global.window = dom.window
 global.window.requestAnimationFrame = (cb) => setTimeout(cb, 0)
