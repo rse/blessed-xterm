@@ -28,20 +28,15 @@ const blessed = require("blessed")
 const Pty     = require("node-pty")
 const jsdom   = require("jsdom")
 
-/*  CRUEL HACK (part 1/2):
-    xterm.js accesses the global "window" once on loading,
-    so we have to emulate this environment temporarily  */
+/*  CRUEL HACK: xterm.js accesses the global "window", so we have to emulate this environment  */
 var window = global.window
 var dom = new jsdom.JSDOM()
 global.window = dom.window
+global.window.requestAnimationFrame = (cb) => setTimeout(cb, 0)
 var document = dom.window.document
 
 /*  load xterm.js  */
 const XTermJS = require("xterm")
-
-/*  CRUEL HACK (part 2/2):
-    restore global "window" again  */
-global.window = window
 
 /*  the API class  */
 class XTerm extends blessed.Box {
