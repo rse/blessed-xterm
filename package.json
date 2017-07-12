@@ -21,7 +21,7 @@
     },
     "devDependencies": {
         "babel-eslint":                              "~7.2.3",
-        "eslint":                                    "~4.1.1",
+        "eslint":                                    "~4.2.0",
         "eslint-config-standard":                    "~10.2.1",
         "eslint-plugin-standard":                    "~3.0.1",
         "eslint-plugin-promise":                     "~3.5.0",
@@ -39,7 +39,7 @@
         "clone":                                     "~2.1.1",
         "blessed":                                   "~0.1.81",
         "jsdom":                                     "~11.1.0",
-        "xterm":                                     "~2.8.0",
+        "xterm":                                     "~2.8.1",
         "node-pty":                                  "0.6.8"
     },
     "engines": {
