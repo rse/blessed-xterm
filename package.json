@@ -46,10 +46,10 @@
         "node":                                      ">=6.0.0"
     },
     "scripts": {
-        "prepublish": "npm run lint && npm run build",
-        "lint":       "eslint --config eslint.yaml blessed-xterm.js sample.js",
-        "build":      "babel blessed-xterm.js >blessed-xterm.js5",
-        "test":       "node sample.js"
+        "prepublishOnly": "npm run lint && npm run build",
+        "lint":           "eslint --config eslint.yaml blessed-xterm.js sample.js",
+        "build":          "babel blessed-xterm.js >blessed-xterm.js5",
+        "test":           "node sample.js"
     },
     "main": "./blessed-xterm.js5"
 }
