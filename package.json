@@ -21,12 +21,12 @@
     },
     "devDependencies": {
         "babel-eslint":                              "~7.2.3",
-        "eslint":                                    "~4.2.0",
+        "eslint":                                    "~4.3.0",
         "eslint-config-standard":                    "~10.2.1",
         "eslint-plugin-standard":                    "~3.0.1",
         "eslint-plugin-promise":                     "~3.5.0",
         "eslint-plugin-import":                      "~2.7.0",
-        "eslint-plugin-node":                        "~5.1.0",
+        "eslint-plugin-node":                        "~5.1.1",
         "babel-preset-env":                          "~1.6.0",
         "babel-preset-es2016":                       "~6.24.1",
         "babel-preset-es2017":                       "~6.24.1",
@@ -35,7 +35,7 @@
         "babel-plugin-transform-runtime":            "~6.23.0"
     },
     "dependencies" : {
-        "babel-runtime":                             "~6.23.0",
+        "babel-runtime":                             "~6.25.0",
         "clone":                                     "~2.1.1",
         "blessed":                                   "~0.1.81",
         "jsdom":                                     "~11.1.0",
