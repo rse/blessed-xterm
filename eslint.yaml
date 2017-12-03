@@ -62,4 +62,5 @@ rules:
     object-property-newline:             off
     curly:                               off
     space-in-parens:                     off
+    no-control-regex:                    off
 
