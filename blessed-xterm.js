@@ -23,16 +23,21 @@
 */
 
 /*  external requirements  */
-const clone   = require("clone")
 const blessed = require("blessed")
 const Pty     = require("node-pty")
 const jsdom   = require("jsdom")
 
 /*  CRUEL HACK: xterm.js accesses the global "window", so we have to emulate this environment  */
-var dom = new jsdom.JSDOM()
-global.window = dom.window
-global.window.requestAnimationFrame = (cb) => setTimeout(cb, 0)
-var document = dom.window.document
+var document;
+if (typeof window !== 'undefined') {
+    window.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+    document = window.document;
+} else {
+    var dom = new jsdom.JSDOM();
+    global.window = dom.window;
+    global.window.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+    document = dom.window.document;
+}
 
 /*  load xterm.js  */
 const XTermJS = require("xterm")
@@ -41,9 +46,6 @@ const XTermJS = require("xterm")
 class XTerm extends blessed.Box {
     /*  construct the API class  */
     constructor (options = {}) {
-        /*  clone options or all widget instances will show
-            at least the same style, etc.  */
-        options = clone(options)
 
         /*  disable the special "scrollable" feature of Blessed's Element
             which would use a ScrolledBox instead of a Box under the surface  */
