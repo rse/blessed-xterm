@@ -36,7 +36,6 @@
     },
     "dependencies" : {
         "babel-runtime":                             "~6.26.0",
-        "clone":                                     "~2.1.1",
         "blessed":                                   "~0.1.81",
         "jsdom":                                     "~11.5.1",
         "xterm":                                     "~2.8.1",

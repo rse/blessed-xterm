@@ -23,7 +23,6 @@
 */
 
 /*  external requirements  */
-const clone   = require("clone")
 const blessed = require("blessed")
 const Pty     = require("node-pty")
 const jsdom   = require("jsdom")
@@ -41,9 +40,6 @@ const XTermJS = require("xterm")
 class XTerm extends blessed.Box {
     /*  construct the API class  */
     constructor (options = {}) {
-        /*  clone options or all widget instances will show
-            at least the same style, etc.  */
-        options = clone(options)
 
         /*  disable the special "scrollable" feature of Blessed's Element
             which would use a ScrolledBox instead of a Box under the surface  */
