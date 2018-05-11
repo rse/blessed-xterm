@@ -38,6 +38,7 @@
     "engines": {
         "node":                                      ">=8.0.0"
     },
+    "upd": [ "!xterm" ],
     "scripts": {
         "prepublishOnly": "npm run lint",
         "lint":           "eslint --config eslint.yaml blessed-xterm.js sample.js",
