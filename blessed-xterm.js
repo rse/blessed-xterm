@@ -54,8 +54,8 @@ class XTerm extends blessed.Box {
 
         /*  helper function for setting options  */
         const setOption = (cfg, name, def) => {
-            if (this.options[name] === undefined)
-                this.options[name] = def
+            if (cfg[name] === undefined)
+                cfg[name] = def
         }
 
         /*  provide option fallbacks  */
