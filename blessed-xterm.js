@@ -492,9 +492,21 @@ class XTerm extends blessed.Box {
 
     /*  spawn shell command on Pty  */
     spawn (shell, args, cwd, env) {
+        /*  termine old PTY  */
         if (this.pty)
             this.terminate()
-        env = Object.assign({}, env || this.options.env || process.env, { TERM: "xterm" })
+
+        /*  establish environment  */
+        env = Object.assign({},
+            process.env,
+            typeof this.options.env === "object" ? this.options.env : {},
+            typeof env === "object" ? env : {}
+        )
+        if (env.TERM === undefined ||
+            !(typeof env.TERM === "string" && env.TERM.match(/^xterm(?:-.+)?$/)))
+            env.TERM = "xterm"
+
+        /*  create new PTY  */
         this.pty = Pty.fork(shell, args, {
             name:  "xterm",
             cols:  this.width  - this.iwidth,
@@ -502,6 +514,8 @@ class XTerm extends blessed.Box {
             cwd:   cwd || this.options.cwd || process.cwd(),
             env:   env
         })
+
+        /*  process data on PTY  */
         this.pty.on("data", (data) => {
             this.write(data)
             if (data instanceof Buffer)
@@ -509,6 +523,8 @@ class XTerm extends blessed.Box {
             if (data.match(/\x07/))
                 this.emit("beep")
         })
+
+        /*  handle PTY termination  */
         this.pty.on("exit", (code) => {
             this.emit("exit", code || 0)
         })
