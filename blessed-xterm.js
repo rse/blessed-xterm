@@ -238,8 +238,8 @@ class XTerm extends blessed.Box {
                     borrowed from original Blessed Terminal widget
                     Copyright (c) 2013-2015 Christopher Jeffrey et al.  */
                 let b = ev.raw[0]
-                let x = ev.x - this.aleft
-                let y = ev.y - this.atop
+                const x = ev.x - this.aleft
+                const y = ev.y - this.atop
                 let s
                 if (this.term.urxvtMouse) {
                     if (this.screen.program.sgrMouse)
@@ -275,8 +275,8 @@ class XTerm extends blessed.Box {
             const nextTick = global.setImmediate || process.nextTick.bind(process)
             nextTick(() => {
                 /*  determine new width/height  */
-                let width  = this.width  - this.iwidth
-                let height = this.height - this.iheight
+                const width  = this.width  - this.iwidth
+                const height = this.height - this.iheight
 
                 /*  pass-through to XTerm  */
                 this.term.resize(width, height)
@@ -291,8 +291,8 @@ class XTerm extends blessed.Box {
 
         /*  perform an initial resizing once  */
         this.once("render", () => {
-            let width  = this.width  - this.iwidth
-            let height = this.height - this.iheight
+            const width  = this.width  - this.iwidth
+            const height = this.height - this.iheight
             this.term.resize(width, height)
         })
 
@@ -334,7 +334,7 @@ class XTerm extends blessed.Box {
     /*  render the widget  */
     render () {
         /*  call the underlying Element's rendering function  */
-        let ret = this._render()
+        const ret = this._render()
         if (!ret)
             return
 
@@ -346,18 +346,18 @@ class XTerm extends blessed.Box {
         this.dattr = this.sattr(this.style)
 
         /*  determine position  */
-        let xi = ret.xi + this.ileft
-        let xl = ret.xl - this.iright
-        let yi = ret.yi + this.itop
-        let yl = ret.yl - this.ibottom
+        const xi = ret.xi + this.ileft
+        const xl = ret.xl - this.iright
+        const yi = ret.yi + this.itop
+        const yl = ret.yl - this.ibottom
 
         /*  iterate over all lines  */
         let cursor
         let dirtyAny = false
         for (let y = Math.max(yi, 0); y < yl; y++) {
             /*  fetch Blessed Screen and XTerm lines  */
-            let sline = this.screen.lines[y]
-            let tline = this.term.lines.get(this.term.ydisp + y - yi)
+            const sline = this.screen.lines[y]
+            const tline = this.term.lines.get(this.term.ydisp + y - yi)
             if (!sline || !tline)
                 break
 
@@ -502,8 +502,8 @@ class XTerm extends blessed.Box {
             typeof this.options.env === "object" ? this.options.env : {},
             typeof env === "object" ? env : {}
         )
-        if (env.TERM === undefined ||
-            !(typeof env.TERM === "string" && env.TERM.match(/^xterm(?:-.+)?$/)))
+        if (   env.TERM === undefined
+            || !(typeof env.TERM === "string" && env.TERM.match(/^xterm(?:-.+)?$/)))
             env.TERM = "xterm"
 
         /*  create new PTY  */

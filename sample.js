@@ -33,9 +33,9 @@ const screen = blessed.screen({
 })
 
 let focused = 0
-let terminal = []
+const terminal = []
 
-let opts = {
+const opts = {
     shell:         process.env.SHELL || "sh",
     args:          [],
     env:           process.env,
@@ -68,7 +68,7 @@ terminal[1] = new XTerm(Object.assign({}, opts, {
     label:   "Sample XTerm #2"
 }))
 
-let hint = "\r\nPress CTRL+q to stop sample program.\r\n" +
+const hint = "\r\nPress CTRL+q to stop sample program.\r\n" +
     "Press F1 or F2 to switch between terminals.\r\n\r\n"
 terminal[0].write(hint)
 terminal[1].write(hint)
@@ -92,7 +92,7 @@ terminal.forEach((term) => {
     term.key("pagedown", () => {
         if (!term.scrolling)
             term.scroll(0)
-        let n = Math.max(1, Math.floor(term.height * 0.10))
+        const n = Math.max(1, Math.floor(term.height * 0.10))
         term.scroll(+n)
         if (Math.ceil(term.getScrollPerc()) === 100)
             term.resetScroll()
@@ -100,7 +100,7 @@ terminal.forEach((term) => {
     term.key("pageup", () => {
         if (!term.scrolling)
             term.scroll(0)
-        let n = Math.max(1, Math.floor(term.height * 0.10))
+        const n = Math.max(1, Math.floor(term.height * 0.10))
         term.scroll(-n)
         if (Math.ceil(term.getScrollPerc()) === 100)
             term.resetScroll()
