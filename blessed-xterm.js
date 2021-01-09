@@ -29,10 +29,10 @@ const Pty     = require("node-pty")
 const jsdom   = require("jsdom")
 
 /*  CRUEL HACK: xterm.js accesses the global "window", so we have to emulate this environment  */
-var dom = new jsdom.JSDOM()
+const dom = new jsdom.JSDOM()
 global.window = dom.window
 global.window.requestAnimationFrame = (cb) => setTimeout(cb, 0)
-var document = dom.window.document
+const document = dom.window.document
 
 /*  load xterm.js  */
 const XTermJS = require("xterm")
@@ -114,8 +114,7 @@ class XTerm extends blessed.Box {
             cols:        this.width  - this.iwidth,
             rows:        this.height - this.iheight,
             cursorBlink: false,
-            scrollback:  this.options.scrollback !== "none" ?
-                this.options.scrollback : this.height - this.iheight
+            scrollback:  this.options.scrollback !== "none" ? this.options.scrollback : this.height - this.iheight
         })
 
         /*  monkey-patch XTerm to prevent it from effectively rendering
@@ -133,7 +132,7 @@ class XTerm extends blessed.Box {
         this.term.keyPress = () => {}
 
         /*  attach XTerm to Virtual DOM  */
-        var container = document.createElement("div")
+        const container = document.createElement("div")
         document.body.appendChild(container)
         this.term.open(container, true)
 
