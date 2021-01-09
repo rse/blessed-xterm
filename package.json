@@ -2,7 +2,7 @@
     "name":        "blessed-xterm",
     "homepage":    "http://github.com/rse/blessed-xterm",
     "description": "XTerm Widget for Blessed Curses Environment",
-    "version":     "1.4.0",
+    "version":     "1.4.1",
     "license":     "MIT",
     "author": {
         "name":    "Dr. Ralf S. Engelschall",
