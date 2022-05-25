@@ -511,7 +511,7 @@ class XTerm extends blessed.Box {
             cols:  this.width  - this.iwidth,
             rows:  this.height - this.iheight,
             cwd:   cwd || this.options.cwd || process.cwd(),
-            env:   env
+            env
         })
 
         /*  process data on PTY  */
