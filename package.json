@@ -44,5 +44,6 @@
         "lint":           "eslint --config eslint.mjs blessed-xterm.js sample.js",
         "test":           "node sample.js"
     },
-    "main": "./blessed-xterm.js"
+    "main":  "./blessed-xterm.js",
+    "types": "./blessed-xterm.d.ts"
 }
