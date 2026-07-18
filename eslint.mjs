@@ -24,14 +24,18 @@
 
 import js        from "@eslint/js"
 import globals   from "globals"
-import neostandard, { plugins as neostdPlugins } from "neostandard"
+import stylistic from "@stylistic/eslint-plugin"
+import n         from "eslint-plugin-n"
+import promise   from "eslint-plugin-promise"
 
 export default [
     js.configs.recommended,
-    ...neostandard(),
-    neostdPlugins.n.configs["flat/recommended-script"],
-    neostdPlugins.promise.configs["flat/recommended"],
+    n.configs["flat/recommended-script"],
+    promise.configs["flat/recommended"],
     {
+        plugins: {
+            "@stylistic": stylistic
+        },
         languageOptions: {
             ecmaVersion: 2022,
             sourceType:  "commonjs",
@@ -59,7 +63,10 @@ export default [
             "@stylistic/lines-between-class-members": "off",
             "curly":                                  "off",
             "no-control-regex":                       "off",
-            "n/no-process-exit":                      "off"
+            "n/no-process-exit":                      "off",
+
+            /*  allow unused function arguments and caught errors  */
+            "no-unused-vars":                         [ "error", { "args": "none", "caughtErrors": "none" } ]
         }
     }
 ]
