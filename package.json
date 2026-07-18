@@ -30,8 +30,7 @@
     "dependencies" : {
         "clone":                                     "2.1.2",
         "blessed":                                   "0.1.81",
-        "jsdom":                                     "25.0.0",
-        "xterm":                                     "2.8.1",
+        "@xterm/headless":                           "6.0.0",
         "node-pty":                                  "1.0.0"
     },
     "engines": {
@@ -40,7 +39,6 @@
     "allowScripts": {
         "node-pty":                                  true
     },
-    "upd": [ "!xterm" ],
     "scripts": {
         "prepublishOnly": "npm run lint",
         "lint":           "eslint --config eslint.mjs blessed-xterm.js sample.js",
