@@ -100,18 +100,43 @@ class XTerm extends blessed.Box {
         return "terminal"
     }
 
+    /*  determine the inner (content) size of the widget  */
+    _innerSize () {
+        return {
+            cols: Math.max(1, this.width  - this.iwidth),
+            rows: Math.max(1, this.height - this.iheight)
+        }
+    }
+
+    /*  propagate the current inner size to XTerm and Pty  */
+    _resize () {
+        const { cols, rows } = this._innerSize()
+        if (this.term)
+            this.term.resize(cols, rows)
+        if (this.pty) {
+            /*  intentionally ignored: the Pty can already be gone
+                because the application exited meanwhile  */
+            try { this.pty.resize(cols, rows) }
+            catch { /*  NO-OP  */ }
+        }
+    }
+
     /*  bootstrap the API class  */
     _bootstrap () {
+        /*  track the deferred resize operation  */
+        this._resizeTimer = null
+
         /*  create XTerm emulation  */
+        const { cols, rows } = this._innerSize()
         this.term = new XTermJS.Terminal({
-            cols:        this.width  - this.iwidth,
-            rows:        this.height - this.iheight,
+            cols,
+            rows,
             cursorBlink: false,
 
             /*  the character buffer access we base our rendering on
                 is still classified as a "proposed" API by XTerm.js  */
             allowProposedApi: true,
-            scrollback:  this.options.scrollback !== "none" ? this.options.scrollback : this.height - this.iheight
+            scrollback:  this.options.scrollback !== "none" ? this.options.scrollback : rows
         })
 
         /*  react on XTerm buffer changes, as we just grab its character buffer.
@@ -126,8 +151,9 @@ class XTerm extends blessed.Box {
 
         /*  react on scrolling and cursor movements, as these change the
             visible result without necessarily parsing any new data  */
-        this.term.onScroll(()     => { this.screen.render() })
-        this.term.onCursorMove(() => { this.screen.render() })
+        const rerender = () => { this.screen.render() }
+        this.term.onScroll(rerender)
+        this.term.onCursorMove(rerender)
 
         /*  pass-through title changes by application  */
         this.term.onTitleChange((title) => {
@@ -142,14 +168,12 @@ class XTerm extends blessed.Box {
                 Copyright (c) 2013-2015 Christopher Jeffrey et al.  */
             let s = buf
             if (Buffer.isBuffer(s)) {
-                if (s[0] > 127 && s[1] === undefined) {
-                    s[0] -= 128
-                    s = "\x1b" + s.toString("utf-8")
-                }
+                if (s[0] > 127 && s[1] === undefined)
+                    s = "\x1b" + Buffer.from([ s[0] - 128 ]).toString("utf-8")
                 else
                     s = s.toString("utf-8")
             }
-            return (buf[0] === 0x1b && buf[1] === 0x5b && buf[2] === 0x4d)
+            return (Buffer.isBuffer(buf) && buf[0] === 0x1b && buf[1] === 0x5b && buf[2] === 0x4d)
                 || /^\x1b\[M([\x00\u0020-\uffff]{3})/.test(s)
                 || /^\x1b\[(\d+;\d+;\d+)M/.test(s)
                 || /^\x1b\[<(\d+;\d+;\d+)([mM])/.test(s)
@@ -176,39 +200,39 @@ class XTerm extends blessed.Box {
         })
 
         /*  capture cooked keyboard input from Blessed (locally)  */
-        this.on("keypress", this._onWidgetEventKeypress = (ch, key) => {
+        this.on("keypress", this._onWidgetEventKeypress = (_ch, key) => {
             /*  only in case we are focused  */
             if (this.screen.focused !== this)
                 return
 
             /*  handle ignored keys  */
-            if (this.options.ignoreKeys.indexOf(key.full) >= 0) {
+            if (this.options.ignoreKeys.includes(key.full)) {
                 this.skipInputDataOnce = true
                 return
             }
 
             /*  handle scrolling keys  */
             if (   !this.scrolling
-                && this.options.controKey !== "none"
+                && this.options.controlKey !== "none"
                 && key.full === this.options.controlKey)
                 this._scrollingStart()
             else if (this.scrolling) {
                 if (   key.full === this.options.controlKey
-                    || key.full.match(/^(?:escape|return|space)$/)) {
+                    || [ "escape", "return", "space" ].includes(key.full)) {
                     this._scrollingEnd()
                     this.skipInputDataOnce = true
                 }
                 else if (key.full === "up")       this.scroll(-1)
                 else if (key.full === "down")     this.scroll(+1)
-                else if (key.full === "pageup")   this.scroll(-(this.height - 2))
-                else if (key.full === "pagedown") this.scroll(+(this.height - 2))
+                else if (key.full === "pageup")   this.scroll(-this._innerSize().rows)
+                else if (key.full === "pagedown") this.scroll(+this._innerSize().rows)
             }
         })
 
         /*  capture cooked keyboard input from Blessed (globally)  */
-        this.onScreenEvent("keypress", this._onScreenEventKeypress = (ch, key) => {
+        this.onScreenEvent("keypress", this._onScreenEventKeypress = (_ch, key) => {
             /*  handle ignored keys  */
-            if (this.options.ignoreKeys.indexOf(key.full) >= 0)
+            if (this.options.ignoreKeys.includes(key.full))
                 this.skipInputDataOnce = true
         })
 
@@ -222,33 +246,33 @@ class XTerm extends blessed.Box {
                 /*  only in case we are touched  */
                 if (   (ev.x < this.aleft + this.ileft)
                     || (ev.y < this.atop  + this.itop)
-                    || (ev.x > this.aleft - this.ileft + this.width)
-                    || (ev.y > this.atop  - this.itop  + this.height))
+                    || (ev.x >= this.aleft + this.width  - this.iright)
+                    || (ev.y >= this.atop  + this.height - this.ibottom))
                     return
 
                 /*  generate canonical mouse input sequence,
                     borrowed from original Blessed Terminal widget
                     Copyright (c) 2013-2015 Christopher Jeffrey et al.  */
                 let b = ev.raw[0]
-                const x = ev.x - this.aleft
-                const y = ev.y - this.atop
+                const x = Math.min(223, ev.x - this.aleft - this.ileft + 1)
+                const y = Math.min(223, ev.y - this.atop  - this.itop  + 1)
                 let s
 
                 /*  XTerm.js no longer exposes the negotiated mouse encoding,
                     so emit the SGR encoding, which all relevant applications
                     negotiate nowadays, or the legacy X10 encoding in case the
                     application requested no mouse tracking at all  */
+
+                /*  normalize the button byte to the un-offset SGR form  */
+                if (!this.screen.program.sgrMouse)
+                    b -= 32
                 if (this.term.modes.mouseTrackingMode !== "none") {
-                    if (!this.screen.program.sgrMouse)
-                        b -= 32
                     s = "\x1b[<" + b + ";" + x + ";" + y +
                         (ev.action === "mousedown" ? "M" : "m")
                 }
                 else {
-                    if (this.screen.program.sgrMouse)
-                        b += 32
                     s = "\x1b[M" +
-                        String.fromCharCode(b) +
+                        String.fromCharCode(b + 32) +
                         String.fromCharCode(x + 32) +
                         String.fromCharCode(y + 32)
                 }
@@ -261,46 +285,46 @@ class XTerm extends blessed.Box {
         /*  react on Blessed focus/blur events. The headless XTerm variant has
             no notion of focus, as this was a purely DOM-related aspect, so we
             just have to re-render in order to show/hide our own cursor.  */
-        this.on("focus", () => { this.screen.render() })
-        this.on("blur",  () => { this.screen.render() })
+        for (const event of [ "focus", "blur" ])
+            this.on(event, rerender)
 
         /*  pass-through Blessed resize events to XTerm/Pty  */
         this.on("resize", () => {
-            const nextTick = global.setImmediate || process.nextTick.bind(process)
-            nextTick(() => {
-                /*  determine new width/height  */
-                const width  = this.width  - this.iwidth
-                const height = this.height - this.iheight
-
-                /*  pass-through to XTerm  */
-                this.term.resize(width, height)
-
-                /*  pass-through to Pty  */
-                if (this.pty !== null) {
-                    try { this.pty.resize(width, height) }
-                    catch (e) { /*  NO-OP  */ }
-                }
+            if (this._resizeTimer !== null)
+                clearImmediate(this._resizeTimer)
+            this._resizeTimer = setImmediate(() => {
+                this._resizeTimer = null
+                this._resize()
             })
         })
 
         /*  perform an initial resizing once  */
-        this.once("render", () => {
-            const width  = this.width  - this.iwidth
-            const height = this.height - this.iheight
-            this.term.resize(width, height)
-        })
+        this.once("render", () => { this._resize() })
 
         /*  on Blessed widget destruction, tear down everything  */
         this.on("destroy", () => {
             this.kill()
-            if (this._onScreenEventInputData)
+            if (this._onScreenEventInputData) {
                 this.screen.program.input.removeListener("data", this._onScreenEventInputData)
-            if (this._onWidgetEventKeypress)
+                this._onScreenEventInputData = null
+            }
+            if (this._onWidgetEventKeypress) {
                 this.off("keypress", this._onWidgetEventKeypress)
-            if (this._onScreenEventKeypress)
+                this._onWidgetEventKeypress = null
+            }
+            if (this._onScreenEventKeypress) {
                 this.removeScreenEvent("keypress", this._onScreenEventKeypress)
-            if (this._onScreenEventMouse)
+                this._onScreenEventKeypress = null
+            }
+            if (this._onScreenEventMouse) {
                 this.removeScreenEvent("mouse", this._onScreenEventMouse)
+                this._onScreenEventMouse = null
+            }
+            if (this._resizeTimer !== null) {
+                clearImmediate(this._resizeTimer)
+                this._resizeTimer = null
+            }
+            this._cell = null
         })
 
         /*  pre-allocate a single buffer cell object, as the XTerm API
@@ -315,8 +339,8 @@ class XTerm extends blessed.Box {
     }
 
     /*  process input data  */
-    enableInput (process) {
-        this.skipInputDataAlways = !process
+    enableInput (enable) {
+        this.skipInputDataAlways = !enable
     }
 
     /*  inject input data  */
@@ -327,7 +351,8 @@ class XTerm extends blessed.Box {
 
     /*  write data to the terminal  */
     write (data) {
-        this.term.write(data)
+        if (this.term !== null)
+            this.term.write(data)
     }
 
     /*  determine whether the application hid the cursor via "CSI ? 2 5 l".
@@ -351,21 +376,18 @@ class XTerm extends blessed.Box {
         let fg = (this.dattr >> 9) & 0x1ff
         let bg =  this.dattr       & 0x1ff
 
-        /*  determine foreground color  */
-        if (!cell.isFgDefault()) {
-            if (cell.isFgPalette())
-                fg = cell.getFgColor()
-            else if (cell.isFgRGB())
-                fg = this._rgbToPalette(cell.getFgColor())
+        /*  determine foreground/background color  */
+        const color = (isDefault, isPalette, isRGB, get, fallback) => {
+            if (isDefault.call(cell))
+                return fallback
+            if (isPalette.call(cell))
+                return get.call(cell)
+            if (isRGB.call(cell))
+                return this._rgbToPalette(get.call(cell))
+            return fallback
         }
-
-        /*  determine background color  */
-        if (!cell.isBgDefault()) {
-            if (cell.isBgPalette())
-                bg = cell.getBgColor()
-            else if (cell.isBgRGB())
-                bg = this._rgbToPalette(cell.getBgColor())
-        }
+        fg = color(cell.isFgDefault, cell.isFgPalette, cell.isFgRGB, cell.getFgColor, fg)
+        bg = color(cell.isBgDefault, cell.isBgPalette, cell.isBgRGB, cell.getBgColor, bg)
 
         /*  determine character attribute flags  */
         let flags = 0
@@ -390,8 +412,8 @@ class XTerm extends blessed.Box {
     render () {
         /*  call the underlying Element's rendering function  */
         const ret = this._render()
-        if (!ret)
-            return
+        if (!ret || this.term === null)
+            return ret
 
         /*  framebuffer synchronization:
             borrowed from original Blessed Terminal widget
@@ -444,24 +466,24 @@ class XTerm extends blessed.Box {
                     break
 
                 /*  read terminal attribute and character  */
-                let x0 = this._cellToAttr(cell)
-                let x1 = cell.getChars() || " "
+                let attr = this._cellToAttr(cell)
+                let char = cell.getChars() || " "
 
                 /*  handle cursor  */
                 if (x === cursor) {
                     if (this.options.cursorType === "line") {
-                        x0 = this.dattr
-                        x1 = "\u2502"
+                        attr = this.dattr
+                        char = "\u2502"
                     }
                     else if (this.options.cursorType === "underline")
-                        x0 = this.dattr | (2 << 18)
+                        attr = this.dattr | (2 << 18)
                     else if (this.options.cursorType === "block")
-                        x0 = this.dattr | (8 << 18)
+                        attr = this.dattr | (8 << 18)
                 }
 
                 /*  write screen attribute and character  */
-                updateSLine(x, 0, x0)
-                updateSLine(x, 1, x1)
+                updateSLine(x, 0, attr)
+                updateSLine(x, 1, char)
             }
 
             /*  mark Blessed Screen line as dirty  */
@@ -478,46 +500,54 @@ class XTerm extends blessed.Box {
         return ret
     }
 
+    /*  set the border color of the focused state  */
+    _setFocusBorder (color) {
+        if (typeof this.style.focus?.border === "object")
+            this.style.focus.border.fg = color
+    }
+
     /*  support scrolling similar to Blessed ScrolledBox  */
     _scrollingStart () {
         this.scrolling = true
-        this.style.focus.border.fg = this.borderScrolling
+        this._setFocusBorder(this.borderScrolling)
         this.focus()
         this.screen.render()
         this.emit("scrolling-start")
     }
     _scrollingEnd () {
-        this.term.scrollToBottom()
-        this.style.focus.border.fg = this.borderFocus
+        this.scrolling = false
+        if (this.term !== null)
+            this.term.scrollToBottom()
+        this._setFocusBorder(this.borderFocus)
         this.focus()
         this.screen.render()
-        this.scrolling = false
         this.emit("scrolling-end")
     }
     getScroll () {
-        return this.term.buffer.active.viewportY
+        return this.term !== null ? this.term.buffer.active.viewportY : 0
     }
     getScrollHeight () {
-        return this.term.rows - 1
+        return this.term !== null ? this.term.buffer.active.baseY : 0
     }
     getScrollPerc () {
+        if (this.term === null)
+            return 0
         const buffer = this.term.buffer.active
-        return (buffer.baseY > 0 ? ((buffer.viewportY / buffer.baseY) * 100) : 100)
+        return (buffer.baseY > 0 ? ((buffer.viewportY / buffer.baseY) * 100) : 0)
     }
     setScrollPerc (i) {
-        return this.setScroll(Math.floor((i / 100) * this.term.buffer.active.baseY))
+        const perc = Math.min(100, Math.max(0, i))
+        return this.setScroll(Math.floor((perc / 100) * this.getScrollHeight()))
     }
     setScroll (offset) {
         return this.scrollTo(offset)
     }
     scrollTo (offset) {
-        if (!this.scrolling)
-            this._scrollingStart()
-        this.term.scrollLines(offset - this.term.buffer.active.viewportY)
-        this.screen.render()
-        this.emit("scroll")
+        this.scroll(offset - this.getScroll())
     }
     scroll (offset) {
+        if (this.term === null)
+            return
         if (!this.scrolling)
             this._scrollingStart()
         this.term.scrollLines(offset)
@@ -534,42 +564,57 @@ class XTerm extends blessed.Box {
         /*  terminate application on Pty  */
         this.terminate()
 
-        /*  tear down XTerm  */
-        this.term.write("\x1b[H\x1b[J")
-        this.term.dispose()
+        /*  tear down XTerm (just once)  */
+        if (this.term !== null) {
+            this.term.write("\x1b[H\x1b[J")
+            this.term.dispose()
+            this.term = null
+        }
     }
 
     /*  spawn shell command on Pty  */
     spawn (shell, args, cwd, env) {
-        /*  termine old PTY  */
-        if (this.pty)
+        /*  terminate old PTY  */
+        if (this.pty !== null)
             this.terminate()
 
         /*  establish environment  */
-        env = Object.assign({},
-            process.env,
-            typeof this.options.env === "object" ? this.options.env : {},
-            typeof env === "object" ? env : {}
-        )
-        if (   env.TERM === undefined
-            || !(typeof env.TERM === "string" && env.TERM.match(/^xterm(?:-.+)?$/)))
-            env.TERM = "xterm"
+        const environment = {
+            ...(typeof this.options.env === "object" ? this.options.env : process.env),
+            ...(typeof env === "object" ? env : {})
+        }
+        if (   typeof environment.TERM !== "string"
+            || !/^xterm(?:-.+)?$/.test(environment.TERM))
+            environment.TERM = "xterm"
 
         /*  create new PTY  */
-        this.pty = Pty.fork(shell, args, {
-            name:  "xterm",
-            cols:  this.width  - this.iwidth,
-            rows:  this.height - this.iheight,
-            cwd:   cwd || this.options.cwd || process.cwd(),
-            env
-        })
+        const { cols, rows } = this._innerSize()
+        try {
+            this.pty = Pty.fork(shell, args, {
+                name:  "xterm",
+                cols,
+                rows,
+                cwd:   cwd || this.options.cwd || process.cwd(),
+                env:   environment
+            })
+        }
+        catch (err) {
+            this.pty = null
+
+            /*  avoid an uncaught exception in case nobody listens  */
+            if (this.listenerCount("error") > 0)
+                this.emit("error", err)
+            else
+                this.emit("exit", -1)
+            return
+        }
 
         /*  process data on PTY  */
         this.pty.on("data", (data) => {
             this.write(data)
             if (data instanceof Buffer)
                 data = data.toString()
-            if (data.match(/\x07/))
+            if (data.includes("\x07"))
                 this.emit("beep")
         })
 
@@ -581,8 +626,12 @@ class XTerm extends blessed.Box {
 
     /*  terminate shell command on Pty  */
     terminate () {
-        if (this.pty) {
-            this.pty.destroy()
+        if (this.pty !== null) {
+            this.pty.removeAllListeners()
+
+            /*  intentionally ignored: the Pty can already be gone  */
+            try { this.pty.destroy() }
+            catch { /*  NO-OP  */ }
             this.pty = null
         }
     }
