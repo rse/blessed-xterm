@@ -293,7 +293,7 @@ class XTerm extends blessed.Box {
         /*  on Blessed widget destruction, tear down everything  */
         this.on("destroy", () => {
             this.kill()
-            if (this._onScreenEventInput)
+            if (this._onScreenEventInputData)
                 this.screen.program.input.removeListener("data", this._onScreenEventInputData)
             if (this._onWidgetEventKeypress)
                 this.off("keypress", this._onWidgetEventKeypress)
@@ -472,7 +472,7 @@ class XTerm extends blessed.Box {
         }
 
         /*  indicate that we updated our rendered content  */
-        if (dirtyAny > 0)
+        if (dirtyAny)
             this.emit("update")
 
         return ret
