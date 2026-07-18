@@ -50,18 +50,16 @@ export default [
             "@stylistic/quotes":                 [ "error", "double" ],
 
             /*  disabled rules  */
-            "@stylistic/no-multi-spaces":        "off",
-            "@stylistic/no-multiple-empty-lines": "off",
-            "@stylistic/key-spacing":            "off",
-            "@stylistic/object-property-newline": "off",
-            "@stylistic/space-in-parens":        "off",
-            "@stylistic/array-bracket-spacing":  "off",
+            "@stylistic/no-multi-spaces":             "off",
+            "@stylistic/no-multiple-empty-lines":     "off",
+            "@stylistic/key-spacing":                 "off",
+            "@stylistic/object-property-newline":     "off",
+            "@stylistic/space-in-parens":             "off",
+            "@stylistic/array-bracket-spacing":       "off",
             "@stylistic/lines-between-class-members": "off",
-            "curly":                             "off",
-            "no-control-regex":                  "off",
-
-            /*  allow explicit termination in the TUI application  */
-            "n/no-process-exit":                 "off"
+            "curly":                                  "off",
+            "no-control-regex":                       "off",
+            "n/no-process-exit":                      "off"
         }
     }
 ]
